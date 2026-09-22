@@ -1,0 +1,25 @@
+{
+  "name": "html-render-studio",
+  "version": "1.0.0",
+  "description": "Render animasi HTML/Three.js/CSS jadi video (MP4/MOV) secara lokal, satuan atau bulk.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-packager . HTMLRenderStudio --platform=win32 --arch=x64 --out=dist --overwrite --prune=true --asar.unpackDir=node_modules/ffmpeg-static && node scripts/prune-output.js dist/HTMLRenderStudio-win32-x64",
+    "build:mac": "electron-packager . HTMLRenderStudio --platform=darwin --arch=universal --out=dist --overwrite --prune=true --asar.unpackDir=node_modules/ffmpeg-static --app-bundle-id=com.htmlrenderstudio.app && node scripts/prune-output.js \"dist/HTMLRenderStudio-darwin-universal/HTMLRenderStudio.app/Contents/Resources\"",
+    "build:mac-intel": "electron-packager . HTMLRenderStudio --platform=darwin --arch=x64 --out=dist --overwrite --prune=true --asar.unpackDir=node_modules/ffmpeg-static --app-bundle-id=com.htmlrenderstudio.app && node scripts/prune-output.js \"dist/HTMLRenderStudio-darwin-x64/HTMLRenderStudio.app/Contents/Resources\"",
+    "build:mac-arm": "electron-packager . HTMLRenderStudio --platform=darwin --arch=arm64 --out=dist --overwrite --prune=true --asar.unpackDir=node_modules/ffmpeg-static --app-bundle-id=com.htmlrenderstudio.app && node scripts/prune-output.js \"dist/HTMLRenderStudio-darwin-arm64/HTMLRenderStudio.app/Contents/Resources\"",
+    "build:linux": "electron-packager . HTMLRenderStudio --platform=linux --arch=x64 --out=dist --overwrite --prune=true --asar.unpackDir=node_modules/ffmpeg-static && node scripts/prune-output.js dist/HTMLRenderStudio-linux-x64"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "ffmpeg-static": "^5.2.0",
+    "adm-zip": "^0.5.16",
+    "nanoid": "^3.3.7"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-packager": "^17.1.2"
+  }
+}

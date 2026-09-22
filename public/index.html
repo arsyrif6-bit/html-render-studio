@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HTML Render Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <span class="brand-name">HTML Render Studio</span>
+    </div>
+    <div class="topbar-status">
+      <span class="rec-dot" id="recDot"></span>
+      <span id="statusText" class="mono">idle</span>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <!-- QUEUE -->
+    <section class="panel queue-panel">
+      <div class="panel-head">
+        <h2>Berkas</h2>
+        <span class="count mono" id="fileCount">0</span>
+      </div>
+
+      <div class="folder-box">
+        <div class="folder-box-label">Folder Input</div>
+        <div class="folder-path mono" id="inputFolderPath">Belum terhubung</div>
+        <div class="folder-actions">
+          <button class="btn btn-small" id="pickInputBtn">📁 Hubungkan Folder</button>
+          <button class="btn btn-small btn-ghost" id="rescanInputBtn" title="Pindai ulang folder">↻</button>
+        </div>
+        <label class="toggle-field watch-toggle">
+          <span>Pantau folder (auto-refresh)</span>
+          <input type="checkbox" id="watchFolderToggle" />
+        </label>
+      </div>
+
+      <div class="upload-row">
+        <label class="btn btn-add btn-ghost">
+          + Tambah HTML manual
+          <input type="file" id="inputHtml" accept=".html,.htm" multiple hidden />
+        </label>
+        <label class="btn btn-add btn-ghost">
+          + Tambah ZIP (aset)
+          <input type="file" id="inputZip" accept=".zip" hidden />
+        </label>
+      </div>
+
+      <ul class="file-list" id="fileList"></ul>
+
+      <p class="hint">Folder input dipindai otomatis: file .html langsung, atau subfolder proyek (mis. Three.js) dengan aset relatif ikut terdeteksi.</p>
+    </section>
+
+    <!-- PREVIEW -->
+    <section class="panel preview-panel">
+      <div class="panel-head">
+        <h2>Pratinjau</h2>
+        <span class="mono" id="previewMeta">—</span>
+      </div>
+      <div class="viewfinder">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <iframe id="previewFrame" class="preview-frame"></iframe>
+        <div class="preview-empty" id="previewEmpty">Pilih salah satu berkas di kiri untuk pratinjau</div>
+      </div>
+      <div class="scrub-row">
+        <button class="btn btn-small" id="playBtn">▶ Putar</button>
+        <input type="range" id="scrubRange" min="0" max="100" value="0" />
+        <span class="mono" id="scrubTime">0.0s</span>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="panel settings-panel">
+      <div class="panel-head"><h2>Pengaturan Render</h2></div>
+
+      <div class="field">
+        <label>Resolusi</label>
+        <div class="chip-row" id="resChips">
+          <button class="chip active" data-res="1080p">1080p<span class="chip-sub">1920×1080</span></button>
+          <button class="chip" data-res="2k">2K<span class="chip-sub">2560×1440</span></button>
+          <button class="chip" data-res="4k">4K<span class="chip-sub">3840×2160</span></button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>FPS</label>
+        <div class="chip-row" id="fpsChips">
+          <button class="chip" data-fps="24">24</button>
+          <button class="chip active" data-fps="30">30</button>
+          <button class="chip" data-fps="60">60</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="durationInput">Durasi (detik)</label>
+        <input type="number" id="durationInput" class="mono" min="0.5" step="0.5" value="5" />
+      </div>
+
+      <div class="field">
+        <label>Format Output</label>
+        <div class="chip-row" id="formatChips">
+          <button class="chip active" data-format="mp4">MP4 (H.264)</button>
+          <button class="chip" data-format="mov-alpha">MOV + Alpha</button>
+        </div>
+      </div>
+
+      <div class="field toggle-field" id="transparentField">
+        <label for="transparentToggle">Latar transparan <span class="mono field-note">(khusus MOV+Alpha)</span></label>
+        <input type="checkbox" id="transparentToggle" disabled />
+      </div>
+
+      <div class="field">
+        <label>Kualitas</label>
+        <div class="chip-row" id="qualityChips">
+          <button class="chip" data-quality="low">Rendah</button>
+          <button class="chip active" data-quality="medium">Sedang</button>
+          <button class="chip" data-quality="high">Tinggi</button>
+        </div>
+      </div>
+
+      <div class="field size-limit-field">
+        <label class="toggle-field">
+          <span>Ukuran file minimum (MP4)</span>
+          <input type="checkbox" id="sizeLimitToggle" checked />
+        </label>
+        <div class="size-limit-row">
+          <input type="number" id="sizeLimitInput" class="mono" min="1" step="0.5" value="5" />
+          <span class="mono size-limit-unit">MB minimal</span>
+        </div>
+        <p class="hint size-limit-hint">Hasil akhir dijamin ≥ nilai ini (bitrate dilebihkan otomatis, lalu di-cek &amp; dinaikkan lagi kalau masih kurang).</p>
+      </div>
+
+      <div class="est-row mono" id="estRow">≈ 150 frame akan dirender</div>
+
+      <div class="folder-box">
+        <div class="folder-box-label">Folder Output (langsung ke laptop)</div>
+        <div class="folder-path mono" id="outputFolderPath">Belum dipilih — hasil disimpan di folder aplikasi</div>
+        <div class="folder-actions">
+          <button class="btn btn-small" id="pickOutputBtn">📁 Pilih Folder Output</button>
+          <button class="btn btn-small btn-ghost" id="openOutputBtn">Buka Folder</button>
+        </div>
+        <label class="toggle-field watch-toggle">
+          <span>Buka folder otomatis setelah selesai</span>
+          <input type="checkbox" id="autoOpenToggle" checked />
+        </label>
+      </div>
+
+      <div class="render-actions">
+        <button class="btn btn-primary" id="renderOneBtn">Render Berkas Terpilih</button>
+        <button class="btn btn-secondary" id="renderAllBtn">Render Semua (Bulk)</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- JOBS -->
+  <section class="panel jobs-panel">
+    <div class="panel-head">
+      <h2>Antrian &amp; Hasil</h2>
+      <span class="mono" id="jobCount">0 job</span>
+    </div>
+    <div class="job-list" id="jobList">
+      <div class="empty-note">Belum ada proses render.</div>
+    </div>
+  </section>
+
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
