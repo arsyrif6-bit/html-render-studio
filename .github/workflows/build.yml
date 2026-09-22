@@ -1,0 +1,77 @@
+name: Build Mac & Linux
+
+# Jalan otomatis kalau kamu push ke branch main,
+# atau bisa dipicu manual lewat tab "Actions" di GitHub (tombol "Run workflow").
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    name: Build macOS (Intel + Apple Silicon) -> .dmg
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build for Mac (Intel x64)
+        run: npm run build:mac-intel
+
+      - name: Build for Mac (Apple Silicon arm64)
+        run: npm run build:mac-arm
+
+      - name: Bungkus jadi .dmg (Intel)
+        run: |
+          hdiutil create -volname "HTMLRenderStudio" \
+            -srcfolder "dist/HTMLRenderStudio-darwin-x64/HTMLRenderStudio.app" \
+            -ov -format UDZO \
+            "HTMLRenderStudio-mac-intel.dmg"
+
+      - name: Bungkus jadi .dmg (Apple Silicon)
+        run: |
+          hdiutil create -volname "HTMLRenderStudio" \
+            -srcfolder "dist/HTMLRenderStudio-darwin-arm64/HTMLRenderStudio.app" \
+            -ov -format UDZO \
+            "HTMLRenderStudio-mac-arm64.dmg"
+
+      - name: Upload hasil .dmg
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTMLRenderStudio-mac-dmg
+          path: |
+            HTMLRenderStudio-mac-intel.dmg
+            HTMLRenderStudio-mac-arm64.dmg
+
+  build-linux:
+    name: Build Linux x64 -> .tar.gz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build for Linux (x64)
+        run: npm run build:linux
+
+      - name: Bungkus jadi .tar.gz portable
+        run: |
+          cd dist
+          tar -czvf ../HTMLRenderStudio-linux-x64.tar.gz HTMLRenderStudio-linux-x64
+
+      - name: Upload hasil .tar.gz
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTMLRenderStudio-linux-tar
+          path: HTMLRenderStudio-linux-x64.tar.gz
